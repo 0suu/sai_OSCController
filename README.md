@@ -12,6 +12,8 @@ Slot 2 -> "/avatar/parameters/BatteryFloat02"
 
 SteamVR環境で動作します。
 <br>
+スロットにセットしたデバイスは保存されます。次回起動時にはアプリがデバイスを検出すると自動的にセットされます。
+<br>
 SteamVRがデバイスを認識してから本アプリケーションがデバイスを取得できるまで時間を要することがあります。
 <br>
 ※特にトラッカーが遅い！！
@@ -47,3 +49,19 @@ SteamVRがデバイスを認識してから本アプリケーションがデバ�
 
 ![SampleImage](image/SampleImage.png)
 ![SampleImage](image/SampleImage_02.png)
+
+おまけ
+<br>
+以下の設定をするとSwitchBot温湿度計から取得した情報を送信します。
+<br>
+システム環境変数
+<br>
+・sai-osc-SBSecret : 「クライアントシークレット」
+<br>
+・sai-osc-SBToken : 「トークン」
+<br>
+・sai-osc-SBMeterID : 「温湿度計のデバイスID」
+<br>
+温度は0 ~ 50度の範囲を(float)0 ~ 1 (avatar/parameters/Humidity)
+<br>
+湿度は0 ~ 100%の範囲を(float)0 ~ 1 (avatar/parameters/Temperature)
