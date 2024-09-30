@@ -1,5 +1,4 @@
-SendBatteryOSC
-
+sai_OSCController
 SampleModel以下のモデルは CC0
 
 ビルドされたソフトウェアやソースコードには、使用しているアセットやライブラリが持つライセンスの範囲を超えた規約や制限を追加することはありません。
