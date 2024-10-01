@@ -1,8 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using SB;
-using SharpOSC;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 using Valve.VR;
 
@@ -34,7 +30,7 @@ namespace sai_OSCController
             EVRInitError error = EVRInitError.None;
             OpenVR.Init(ref error, EVRApplicationType.VRApplication_Overlay);
 
-            oSCReceiver = new();
+            //oSCReceiver = new();
             oSCSender = new();
 
             meterDataReceiver = new();

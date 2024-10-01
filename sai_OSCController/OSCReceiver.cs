@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+﻿//using Cysharp.Threading.Tasks;
 using SharpOSC;
 
 public class OSCReceiver
@@ -12,9 +12,9 @@ public class OSCReceiver
     {
         Console.WriteLine("Start OSCReceiver");
 
-        RunOSCListenerAsync().Forget();
+        //RunOSCListenerAsync().Forget();
     }
-
+    /*
     async UniTaskVoid RunOSCListenerAsync()
     {
         HandleOscPacket callback = delegate (OscPacket packet)
@@ -26,7 +26,7 @@ public class OSCReceiver
 
         Console.WriteLine("Listening for OSC messages...");
     }
-
+    */
     void HandleMessage(OscMessage message)
     {
         if (message == null)

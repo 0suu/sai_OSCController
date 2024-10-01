@@ -85,7 +85,7 @@ namespace SB
                 return;
             }
 
-            Console.WriteLine(token + secret);
+            //Console.WriteLine(token + secret);
 
             current = DateTime.Now;
             span = current - dt1970;
