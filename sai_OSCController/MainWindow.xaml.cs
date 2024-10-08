@@ -30,7 +30,7 @@ namespace sai_OSCController
             EVRInitError error = EVRInitError.None;
             OpenVR.Init(ref error, EVRApplicationType.VRApplication_Overlay);
 
-            //oSCReceiver = new();
+            oSCReceiver = new();
             oSCSender = new();
 
             meterDataReceiver = new();
