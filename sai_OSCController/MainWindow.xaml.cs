@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Cysharp.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using Valve.VR;
 
@@ -13,6 +14,8 @@ namespace sai_OSCController
         BatteryDataReceiver? batteryDataReceiver = null;
 
         OSCSender? oSCSender = null;
+
+        public AvatarMover? AvatarMover = null;
 
         public static MainWindow? Instance { get; set; }
 
@@ -33,8 +36,10 @@ namespace sai_OSCController
             oSCReceiver = new();
             oSCSender = new();
 
-            meterDataReceiver = new();
-            batteryDataReceiver = new();
+            //meterDataReceiver = new();
+            //batteryDataReceiver = new();
+
+            AvatarMover = new(oSCSender);
 
             _timer1 = new();
             _timer1.Interval = TimeSpan.FromSeconds(updateDeviceInterval);
@@ -49,9 +54,13 @@ namespace sai_OSCController
 
         void OSCSend()
         {
-            var batteryData = batteryDataReceiver.GetSendData();
-            var meterData = meterDataReceiver.GetSendData();
-            oSCSender.Send(batteryData);
+            var batteryData = batteryDataReceiver?.GetSendData();
+            var meterData = meterDataReceiver?.GetSendData();
+
+            if (batteryData != null)
+            {
+                oSCSender.Send(batteryData);
+            }
 
             if (meterData != null)
             {
@@ -68,6 +77,11 @@ namespace sai_OSCController
                 OpenVR.Shutdown();
                 disposed = true;
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            AvatarMover.Stop();
         }
     }
 }
