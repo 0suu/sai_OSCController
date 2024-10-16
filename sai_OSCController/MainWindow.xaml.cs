@@ -36,8 +36,8 @@ namespace sai_OSCController
             oSCReceiver = new();
             oSCSender = new();
 
-            //meterDataReceiver = new();
-            //batteryDataReceiver = new();
+            meterDataReceiver = new();
+            batteryDataReceiver = new();
 
             AvatarMover = new(oSCSender);
 
