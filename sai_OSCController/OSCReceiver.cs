@@ -4,7 +4,6 @@ using Cysharp.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows;
 using System.IO;
-using sai_OSCController;
 
 public class OSCReceiver
 {
@@ -21,7 +20,7 @@ public class OSCReceiver
 
         try
         {
-            RunOSCListenerAsync().Forget();
+            RunOSCListenerAsync();
         }
         catch (Exception ex)
         {
@@ -78,41 +77,6 @@ public class OSCReceiver
             }
         }
     }
-
-    void OnHandleAvatarMover(string address, float value)
-    {
-        var type = AvatarMover.InputType.Unknown;
-
-        switch (address)
-        {
-            case "/avatar/parameters/AMForward":
-                type = AvatarMover.InputType.MoveForward;
-                break;
-            case "/avatar/parameters/AMBack":
-                type = AvatarMover.InputType.MoveBackward;
-                break;
-            case "/avatar/parameters/AMRight":
-                type = AvatarMover.InputType.MoveRight;
-                break;
-            case "/avatar/parameters/AMLeft":
-                type = AvatarMover.InputType.MoveLeft;
-                break;
-            case "/avatar/parameters/AMJump":
-                type = AvatarMover.InputType.Jump;
-                break;
-            case "/avatar/parameters/AMLookRight":
-                type = AvatarMover.InputType.LookRight;
-                break;
-            case "/avatar/parameters/AMLookLeft":
-                type = AvatarMover.InputType.LookLeft;
-                break;
-            case "/avatar/parameters/AMMic":
-                type = AvatarMover.InputType.Voice;
-                break;
-        }
-
-        MainWindow.Instance?.AvatarMover?.Move(type, value);
-    }
     
     void HandleMessage(OscMessage message)
     {
@@ -121,7 +85,7 @@ public class OSCReceiver
             return;
         }
 
-        if (!message.Address.Contains("Button") && !message.Address.Contains("AM"))
+        if (!message.Address.Contains("Button"))
         {
             return;
         }
@@ -135,11 +99,6 @@ public class OSCReceiver
             if (message.Address.Contains("avatar/parameters/ExitButton"))
             {
                 OnHandleExitButton((float)arg);
-            }
-
-            if (message.Address.Contains("avatar/parameters/AM"))
-            {
-                OnHandleAvatarMover(message.Address, (float)arg);
             }
         });
     }

@@ -28,6 +28,5 @@
         <WrapPanel Grid.Row="0" x:Name="SlotGrid" Margin="0,47,1,0" Grid.Column="1">
             <!-- ここにコンテンツを追加 -->
         </WrapPanel>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="39,386,0,0" VerticalAlignment="Top" Click="Button_Click"/>
     </Grid>
 </Window>

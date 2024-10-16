@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="UniTask" Version="2.5.10" />
+    <PackageReference Include="UniTask" Version="2.5.5" />
     <PackageReference Include="Unofficial.OpenVR" Version="1.1.0" />
   </ItemGroup>
 
