@@ -75,6 +75,7 @@ public class AvatarMover
 
         if (type is InputType.Jump or InputType.Voice)
         {
+            // ジャンプかボイスの場合は一度だけのアクション
             OnceAction(type).Forget();
             return;
         }
