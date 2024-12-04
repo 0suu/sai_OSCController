@@ -1,5 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 using Valve.VR;
 
