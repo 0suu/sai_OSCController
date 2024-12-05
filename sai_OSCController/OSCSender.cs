@@ -5,10 +5,13 @@ public class OSCSender
     const string ip = "127.0.0.1"; // VRChatのIPアドレス
     const int port = 9000; // VRChatのOSC受信用ポート
 
+    public static OSCSender Instance;
+
     UDPSender oscSender;
 
     public OSCSender()
 	{
+        Instance = this;
         oscSender = new UDPSender(ip, port);
     }
 

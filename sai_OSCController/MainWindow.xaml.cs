@@ -7,13 +7,10 @@ namespace sai_OSCController
     public partial class MainWindow : Window
     {
         OSCReceiver? oSCReceiver = null;
-
         MeterDataReceiver? meterDataReceiver = null;
-
         BatteryDataReceiver? batteryDataReceiver = null;
-
         OSCSender? oSCSender = null;
-
+        ExpressionReceiver? expressionReceiver = null;
         public AvatarMover? AvatarMover = null;
 
         public static MainWindow? Instance { get; set; }
@@ -37,6 +34,8 @@ namespace sai_OSCController
 
             meterDataReceiver = new();
             batteryDataReceiver = new();
+
+            expressionReceiver = new();
 
             AvatarMover = new(oSCSender);
 
@@ -73,6 +72,7 @@ namespace sai_OSCController
             {
                 Console.WriteLine("Dispose");
                 oSCSender.Dispose();
+                expressionReceiver.OnClosed();
                 OpenVR.Shutdown();
                 disposed = true;
             }
