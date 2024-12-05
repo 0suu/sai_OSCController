@@ -7,11 +7,12 @@ using sai_OSCController;
 
 public class BatteryDataReceiver
 {
-    public class Device(string name, string id, float battery)
+    public class Device(string name, string id, float battery, bool isCharging)
     {
         public string Name = name;
         public string ID = id;
         public float Battery = battery;
+        public bool IsCharging = isCharging;
     }
 
     List<Device> Devices = new();
@@ -22,7 +23,9 @@ public class BatteryDataReceiver
 
     const int slotCount = 14; // スロットリストのボタン数
 
-    const string batteryAddress = "/avatar/parameters/BatteryFloat";
+    const string batteryAddress = "/avatar/parameters/Battery";
+    const string percentargeSuffix = "Float";
+    const string isChargingSuffix = "IsCharging";
     const int updateDeviceInterval = 10; // 10秒ごと
 
     List<Button> slotButtons = new();
@@ -51,9 +54,14 @@ public class BatteryDataReceiver
 
             float value = 1 - foundDevice.Battery;
 
-            var tempBatteryAddress = batteryAddress + i.ToString("D2");
+            // .../BatteryFloat0X
+            var BatteryPercentargeAddress = batteryAddress + percentargeSuffix + i.ToString("D2");
 
-            messages.Add(new OscMessage(tempBatteryAddress, value));
+            messages.Add(new OscMessage(BatteryPercentargeAddress, value));
+
+            // .../Battery0XIsCharging
+            var BatteryIsChargingAddress = batteryAddress + i.ToString("D2") + isChargingSuffix;
+            messages.Add(new OscMessage(BatteryIsChargingAddress, foundDevice.IsCharging ? 1 : 0));
         }
 
         return messages;
@@ -366,10 +374,10 @@ public class BatteryDataReceiver
         for (int i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
             ETrackedDeviceClass deviceClass = OpenVR.System.GetTrackedDeviceClass((uint)i);
-            bool batteryCharging = GetTrackedDevicePropertyBool((uint)i, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+            bool isCharging = GetTrackedDevicePropertyBool((uint)i, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
             float batteryPercentage = GetTrackedDevicePropertyFloat((uint)i, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
             string aaa = GetTrackedDevicePropertyString((uint)i, ETrackedDeviceProperty.Prop_SerialNumber_String);
-            Console.WriteLine("        Device " + i + ": " + aaa + " (" + deviceClass.ToString() + "), Battery: " + (batteryPercentage * 100).ToString("F0") + "%" + " isCharging =>" + batteryCharging);
+            Console.WriteLine("        Device " + i + ": " + aaa + " (" + deviceClass.ToString() + "), Battery: " + (batteryPercentage * 100).ToString("F0") + "%" + " isCharging =>" + isCharging);
             if (batteryPercentage >= 0)
             {
                 if (batteryPercentage >= 0)
@@ -379,7 +387,7 @@ public class BatteryDataReceiver
                     Console.WriteLine("Device " + i + ": " + deviceID + " (" + deviceClass.ToString() + "), Battery: " + (batteryPercentage * 100).ToString("F0") + "%");
 
                     // デバイスの情報をリストに追加
-                    devices.Add(new(deviceName, deviceID, batteryPercentage));
+                    devices.Add(new(deviceName, deviceID, batteryPercentage, isCharging));
                 }
             }
         }
