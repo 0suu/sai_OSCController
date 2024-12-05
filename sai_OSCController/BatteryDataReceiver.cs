@@ -366,9 +366,10 @@ public class BatteryDataReceiver
         for (int i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
             ETrackedDeviceClass deviceClass = OpenVR.System.GetTrackedDeviceClass((uint)i);
+            bool batteryCharging = GetTrackedDevicePropertyBool((uint)i, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
             float batteryPercentage = GetTrackedDevicePropertyFloat((uint)i, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
             string aaa = GetTrackedDevicePropertyString((uint)i, ETrackedDeviceProperty.Prop_SerialNumber_String);
-            Console.WriteLine("        Device " + i + ": " + aaa + " (" + deviceClass.ToString() + "), Battery: " + (batteryPercentage * 100).ToString("F0") + "%");
+            Console.WriteLine("        Device " + i + ": " + aaa + " (" + deviceClass.ToString() + "), Battery: " + (batteryPercentage * 100).ToString("F0") + "%" + " isCharging =>" + batteryCharging);
             if (batteryPercentage >= 0)
             {
                 if (batteryPercentage >= 0)
@@ -384,6 +385,17 @@ public class BatteryDataReceiver
         }
 
         return devices;
+    }
+
+    bool GetTrackedDevicePropertyBool(uint deviceId, ETrackedDeviceProperty prop)
+    {
+        ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
+        bool result = OpenVR.System.GetBoolTrackedDeviceProperty(deviceId, prop, ref error);
+        if (error == ETrackedPropertyError.TrackedProp_Success)
+        {
+            return result;
+        }
+        return false;
     }
 
     float GetTrackedDevicePropertyFloat(uint deviceId, ETrackedDeviceProperty prop)
