@@ -267,7 +267,9 @@ namespace sai_OSCController
 
 
 
-            messages.Add(new("/avatar/parameters/RotationX", rotationX));
+            messages.Add(new("/avatar/parameters/FTRotationX", rotationX + 0.5f));
+            messages.Add(new("/avatar/parameters/FTRotationY", rotationY + 0.5f));
+            messages.Add(new("/avatar/parameters/FTRotationZ", rotationZ + 0.5f));
             //messages.Add(new("/tracking/trackers/head/rotation", rotationX, rotationY, rotationZ));
             OSCSender.Instance.Send(messages);
         }
