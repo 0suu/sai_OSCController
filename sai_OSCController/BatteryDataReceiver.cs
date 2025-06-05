@@ -316,11 +316,6 @@ public class BatteryDataReceiver
         waitClickSlot = -1;
     }
 
-    string? GetDeviceInSlot(int slotNum)
-    {
-        return slotButtons[slotNum].Content.ToString();
-    }
-
     /// <summary>
     /// 指定されたスロット番号にデバイスIDを設定し、設定を保存します。
     /// </summary>

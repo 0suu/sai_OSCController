@@ -17,8 +17,6 @@ public class MeterDataReceiver
     const string humidityAddress = "/avatar/parameters/Humidity";
     const string temperatureAddress = "/avatar/parameters/Temperature";
 
-    float tempMin = 0;
-    float tempMax = 50;
 
     int humidity = 0;
     float temperature = 0;
