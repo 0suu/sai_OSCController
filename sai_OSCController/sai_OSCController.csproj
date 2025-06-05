@@ -12,7 +12,14 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="UniTask" Version="2.5.10" />
     <PackageReference Include="Unofficial.OpenVR" Version="1.1.0" />
-    <PackageReference Include="Google.Cloud.Dialogflow.V2" Version="3.5.0" />
+    <!-- Google.Cloud.Dialogflow.V2 removed -->
+    <PackageReference Include="Google.Apis.Auth" Version="1.67.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.61.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.62.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Google.Protobuf" Version="3.25.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +41,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos/google/assistant/embedded/v1alpha2/embedded_assistant.proto" GrpcServices="Client" Access="Public" ProtoRoot="Protos" />
   </ItemGroup>
 
 </Project>

@@ -44,7 +44,16 @@
     <Setting Name="slot13" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DialogflowProjectId" Type="System.String" Scope="User">
+    <Setting Name="OAuthClientId" Type="System.String" Scope="User">
+      <Value Profile="(Default)"></Value>
+    </Setting>
+    <Setting Name="OAuthClientSecret" Type="System.String" Scope="User">
+      <Value Profile="(Default)"></Value>
+    </Setting>
+    <Setting Name="RegisteredDeviceId" Type="System.String" Scope="User">
+      <Value Profile="(Default)"></Value>
+    </Setting>
+    <Setting Name="AssistantDeviceModelId" Type="System.String" Scope="User">
       <Value Profile="(Default)"></Value>
     </Setting>
   </Settings>

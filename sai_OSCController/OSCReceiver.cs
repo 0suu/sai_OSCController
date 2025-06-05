@@ -1,104 +1,71 @@
 ﻿using SharpOSC;
-using Cysharp.Threading.Tasks; // Keep this if still used elsewhere, or remove if specific to old async model
+using Cysharp.Threading.Tasks;
 using System.Diagnostics;
-using System.Windows; // For MessageBox, consider if still appropriate here or should be in UI layer
+using System.Windows;
 using System.IO;
-using sai_OSCController; // Assuming DialogflowManager is in this namespace
-using System; // Added for AppDomain, Guid, Exception
-using System.Threading.Tasks; // Added for Task
+using sai_OSCController;
+using System;
+using System.Threading.Tasks;
 
 public class OSCReceiver
 {
     readonly string batFile = "ExitVRChat.bat";
-    private DialogflowManager dialogflowManager; // Added
-    private const string DialogflowOscAddressPlaceholder = "/avatar/parameters/GoogleAssistantQuery"; // Added - User will define actual address
+    private GoogleAuthService googleAuthService;
+    private GoogleAssistantServiceManager assistantServiceManager;
+    private const string AssistantOscAddress = "/avatar/parameters/GoogleAssistantQuery";
+    private string assistantDeviceModelId = "";
+    private string assistantDeviceInstanceId = "";
+    private string assistantLanguageCode = "en-US";
 
-    // Placeholder for Project ID - will be loaded from settings later
-    private string dialogflowProjectId = ""; // Added
-
-    public OSCReceiver()
+    public OSCReceiver(GoogleAuthService authService, GoogleAssistantServiceManager assistantManager)
     {
-        // Initialize DialogflowManager
-        try
-        {
-            dialogflowManager = new DialogflowManager();
-            // Load Project ID from settings here eventually
-            // For now, we can leave it empty or use a hardcoded placeholder for initial testing if necessary,
-            // but the DialogflowManager's SetProjectId should be called before making API calls.
-            // Example: LoadDialogflowProjectIdFromSettings();
-            // dialogflowManager.SetProjectId(this.dialogflowProjectId); // Call this after loading
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to initialize DialogflowManager: {ex.Message}. Google Assistant functionality will be unavailable.");
-            // Decide if the application can continue without Dialogflow or if this is a critical failure
-            // For now, we log and continue.
-            dialogflowManager = null; // Ensure it's null if initialization fails
-        }
+        this.googleAuthService = authService;
+        this.assistantServiceManager = assistantManager;
         Start();
     }
 
-    // Method to be called when Project ID is loaded/changed
-    public void UpdateDialogflowProjectId(string projectId)
+    public void UpdateAssistantDeviceCredentials(string modelId, string instanceId)
     {
-        this.dialogflowProjectId = projectId;
-        if (dialogflowManager != null)
-        {
-            dialogflowManager.SetProjectId(this.dialogflowProjectId);
-        }
-        else
-        {
-            Console.WriteLine("DialogflowManager is not initialized. Cannot set Project ID.");
-        }
+        this.assistantDeviceModelId = modelId;
+        this.assistantDeviceInstanceId = instanceId;
+        this.assistantServiceManager.SetDeviceCredentials(modelId, instanceId); // Pass through
+        Console.WriteLine($"OSCReceiver: Assistant Device Credentials Updated. Model ID: {modelId}, Instance ID: {instanceId}");
     }
 
+    public void UpdateAssistantLanguageCode(string langCode)
+    {
+        this.assistantLanguageCode = langCode;
+        this.assistantServiceManager.SetLanguageCode(langCode); // Pass through
+        Console.WriteLine($"OSCReceiver: Assistant Language Code Updated to: {langCode}");
+    }
 
     public void Start()
     {
         Console.WriteLine("Start OSCReceiver");
-        // Load Project ID from settings when OSCReceiver starts or is configured
-        // This is a good place to ensure it's loaded if not done in constructor.
-        LoadDialogflowProjectIdFromSettings(); // We'll implement this properly in the configuration step
-
+        // Configuration for Assistant (like Device IDs, language) will be set via Update methods from MainWindow
         try
         {
-            RunOSCListenerAsync().Forget(); // Assuming UniTask is still used for this listener
+            _ = StartListenerAsync();
         }
         catch (Exception ex)
         {
-            // Using Console.WriteLine for logging as MessageBox might not be ideal for a background listener
             Console.WriteLine($"OSCリスナーの起動中にエラーが発生しました: {ex.Message}");
         }
     }
     
-    // Placeholder for loading from settings - will be implemented in a later step
-    private void LoadDialogflowProjectIdFromSettings()
-    {
-        string projectIdFromSettings = sai_OSCController.Properties.Settings.Default.DialogflowProjectId;
-        if (!string.IsNullOrEmpty(projectIdFromSettings))
-        {
-            UpdateDialogflowProjectId(projectIdFromSettings);
-            Console.WriteLine($"Loaded Dialogflow Project ID from settings: {projectIdFromSettings}");
-        }
-        else
-        {
-            Console.WriteLine("Dialogflow Project ID is not configured in settings. Please configure it for Google Assistant functionality.");
-            // UpdateDialogflowProjectId(""); // Explicitly set to empty if not found, ensures DialogflowManager knows
-        }
-    }
-
-    async UniTask RunOSCListenerAsync() // Assuming UniTask is the desired way to run this
+    async Task StartListenerAsync()
     {
         HandleOscPacket callback = delegate (OscPacket packet)
         {
-            // Ensure messages are handled on a thread that can make async calls if necessary,
-            // or ensure HandleMessage itself is fully async if it calls async Dialogflow methods.
-            // For now, direct call. If issues arise, consider Task.Run or similar.
             HandleMessage((OscMessage)packet);
         };
 
         var listener = new UDPListener(9001, callback);
         Console.WriteLine("Listening for OSC messages on port 9001...");
+        // Keep listener running, UniTask.Never might be an option if this were a UniTask method
+        // For a standard Task, ensure it doesn't complete if listener is meant to run indefinitely
+        // The UDPListener itself likely runs on its own thread or uses async IO.
+        await Task.Delay(-1); // Keeps this async method alive indefinitely if UDPListener doesn't block.
     }
 
     void OnHandleExitButton(float value)
@@ -173,50 +140,59 @@ public class OSCReceiver
         MainWindow.Instance?.AvatarMover?.Move(type, value);
     }
     
-    // New method to handle Dialogflow OSC messages
-    private async Task HandleDialogflowOsc(OscMessage message)
+    private async Task HandleAssistantServiceOsc(OscMessage message)
     {
-        if (dialogflowManager == null)
+        if (googleAuthService == null)
         {
-            Console.WriteLine("DialogflowManager is not initialized. Cannot process Google Assistant command.");
+            Console.WriteLine("GoogleAuthService is not initialized. Cannot process Assistant command.");
+            return;
+        }
+        if (assistantServiceManager == null)
+        {
+            Console.WriteLine("GoogleAssistantServiceManager is not initialized. Cannot process Assistant command.");
             return;
         }
 
-        if (string.IsNullOrEmpty(this.dialogflowProjectId))
+        if (string.IsNullOrEmpty(assistantDeviceModelId) || string.IsNullOrEmpty(assistantDeviceInstanceId))
         {
-            Console.WriteLine("Dialogflow Project ID is not configured. Cannot process Google Assistant command.");
-            // Attempt to load it again, or notify user through UI if possible.
-            // LoadDialogflowProjectIdFromSettings(); // Try loading again
-            // if (string.IsNullOrEmpty(this.dialogflowProjectId)) return; // Still not loaded
+            Console.WriteLine("Assistant Device Model ID or Instance ID is not configured. Cannot process Assistant command.");
+            return;
+        }
+
+        string accessToken = null;
+        try
+        {
+            accessToken = await googleAuthService.GetAccessTokenAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error obtaining access token: {ex.Message}");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Console.WriteLine("Failed to obtain access token. Cannot process Assistant command.");
             return;
         }
 
         if (message.Arguments.Count == 0 || !(message.Arguments[0] is string textCommand) || string.IsNullOrWhiteSpace(textCommand))
         {
-            Console.WriteLine($"Received Dialogflow OSC message at {message.Address} but found no valid text command in arguments.");
+            Console.WriteLine($"Received Assistant OSC message at {message.Address} but found no valid text command in arguments.");
             return;
         }
 
-        Console.WriteLine($"Received command for Dialogflow: {textCommand}");
-        string sessionId = Guid.NewGuid().ToString(); // Unique session ID for each query
+        Console.WriteLine($"Received command for Google Assistant Service: {textCommand}");
 
         try
         {
-            // The DialogflowManager's ProjectId should be set by now via UpdateDialogflowProjectId
-            Google.Cloud.Dialogflow.V2.DetectIntentResponse response = await dialogflowManager.DetectIntentAsync(sessionId, textCommand);
-            if (response != null)
-            {
-                Console.WriteLine($"Dialogflow Fulfillment: {response.QueryResult.FulfillmentText}");
-                // Here you could potentially send a response back via OSC or update UI
-            }
-            else
-            {
-                Console.WriteLine("No response or error from Dialogflow.");
-            }
+            string responseText = await assistantServiceManager.SendTextQueryAsync(textCommand, accessToken);
+            Console.WriteLine($"Google Assistant Response: {responseText}");
+            // Here you could potentially send a response back via OSC or update UI
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error during Dialogflow intent detection: {ex.Message}");
+            Console.WriteLine($"Error during Google Assistant query: {ex.Message}");
         }
     }
 
@@ -227,25 +203,15 @@ public class OSCReceiver
             return;
         }
 
-        // Log all received messages for debugging if needed (optional)
-        // Console.WriteLine($"OSC Received: {message.Address} with {message.Arguments.Count} args.");
-
-        // Check for Dialogflow OSC address first
-        // Using StartsWith to allow for potential sub-addresses if user configures it that way,
-        // but exact match might be better depending on final OSC address definition.
-        if (message.Address.Equals(DialogflowOscAddressPlaceholder, StringComparison.OrdinalIgnoreCase))
+        if (message.Address.Equals(AssistantOscAddress, StringComparison.OrdinalIgnoreCase))
         {
-            // Call the async handler. Don't wait for it here to avoid blocking OSC listener thread.
-            // Fire and forget, with error handling inside HandleDialogflowOsc.
-            _ = HandleDialogflowOsc(message);
-            return; // Message handled
+            _ = HandleAssistantServiceOsc(message);
+            return;
         }
 
         // Existing handlers
         if (!message.Address.Contains("Button") && !message.Address.Contains("AM"))
         {
-            // If it's not Dialogflow and not Button/AM, ignore.
-            // Comment out the return to log all messages if needed for debugging.
             return;
         }
 
@@ -258,7 +224,7 @@ public class OSCReceiver
             {
                 OnHandleExitButton((float)arg);
             }
-            else if (message.Address.Contains("avatar/parameters/AM")) // Use else if to avoid double processing
+            else if (message.Address.Contains("avatar/parameters/AM"))
             {
                 OnHandleAvatarMover(message.Address, (float)arg);
             }

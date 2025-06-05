@@ -194,12 +194,48 @@ namespace sai_OSCController.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DialogflowProjectId {
+        public string OAuthClientId {
             get {
-                return ((string)(this["DialogflowProjectId"]));
+                return ((string)(this["OAuthClientId"]));
             }
             set {
-                this["DialogflowProjectId"] = value;
+                this["OAuthClientId"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OAuthClientSecret {
+            get {
+                return ((string)(this["OAuthClientSecret"]));
+            }
+            set {
+                this["OAuthClientSecret"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RegisteredDeviceId {
+            get {
+                return ((string)(this["RegisteredDeviceId"]));
+            }
+            set {
+                this["RegisteredDeviceId"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AssistantDeviceModelId {
+            get {
+                return ((string)(this["AssistantDeviceModelId"]));
+            }
+            set {
+                this["AssistantDeviceModelId"] = value;
             }
         }
     }
