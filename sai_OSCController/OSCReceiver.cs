@@ -116,9 +116,13 @@ public class OSCReceiver
         MainWindow.Instance?.AvatarMover?.Move(type, value);
     }
 
-    void OnHandleAssistantQuery(string text)
+    async UniTaskVoid OnHandleAssistantQuery(string text)
     {
-        assistantApi.SendTextQueryAsync(text).Forget();
+        var response = await assistantApi.SendTextQueryAsync(text);
+        if (response != null)
+        {
+            Console.WriteLine($"Assistant response: {response}");
+        }
     }
     
     void HandleMessage(OscMessage message)
@@ -154,7 +158,7 @@ public class OSCReceiver
             {
                 if (arg is string str)
                 {
-                    OnHandleAssistantQuery(str);
+                    OnHandleAssistantQuery(str).Forget();
                 }
             }
         });
