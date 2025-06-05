@@ -4,10 +4,13 @@ using System.Diagnostics;
 using System.Windows;
 using System.IO;
 using sai_OSCController;
+using System.Text;
+using System.Net.Http;
 
 public class OSCReceiver
 {
     readonly string batFile = "ExitVRChat.bat";
+    GoogleAssistantApi assistantApi = new();
 
     public OSCReceiver()
     {
@@ -112,6 +115,11 @@ public class OSCReceiver
 
         MainWindow.Instance?.AvatarMover?.Move(type, value);
     }
+
+    void OnHandleAssistantQuery(string text)
+    {
+        assistantApi.SendTextQueryAsync(text).Forget();
+    }
     
     void HandleMessage(OscMessage message)
     {
@@ -120,7 +128,8 @@ public class OSCReceiver
             return;
         }
 
-        if (!message.Address.Contains("Button") && !message.Address.Contains("AM"))
+        if (!message.Address.Contains("Button") && !message.Address.Contains("AM") &&
+            !message.Address.StartsWith("/assistant/query"))
         {
             return;
         }
@@ -139,6 +148,14 @@ public class OSCReceiver
             if (message.Address.Contains("avatar/parameters/AM"))
             {
                 OnHandleAvatarMover(message.Address, (float)arg);
+            }
+
+            if (message.Address.StartsWith("/assistant/query"))
+            {
+                if (arg is string str)
+                {
+                    OnHandleAssistantQuery(str);
+                }
             }
         });
     }

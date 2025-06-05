@@ -65,3 +65,14 @@ SteamVRがデバイスを認識してから本アプリケーションがデバ�
 温度は0 ~ 50度の範囲を(float)0 ~ 1 (avatar/parameters/Humidity)
 <br>
 湿度は0 ~ 100%の範囲を(float)0 ~ 1 (avatar/parameters/Temperature)
+
+Google Assistant テキストクエリ
+<br>
+VRChat から "/assistant/query" アドレスの OSC を受信すると、その引数を Google Assistant API に送信します。
+<br>
+以下の環境変数を設定してください。
+<br>
+・GA_PROJECT_ID<br>
+・GA_MODEL_ID<br>
+・GA_DEVICE_ID<br>
+・GA_ACCESS_TOKEN
