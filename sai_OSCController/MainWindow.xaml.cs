@@ -32,12 +32,24 @@ namespace sai_OSCController
             EVRInitError error = EVRInitError.None;
             OpenVR.Init(ref error, EVRApplicationType.VRApplication_Overlay);
 
-            oSCReceiver = new();
-            oSCSender = new();
+            oSCReceiver = new(); // OSCReceiver constructor now initializes DialogflowManager
 
+            // Explicitly load and set Dialogflow Project ID for OSCReceiver
+            // This ensures OSCReceiver's DialogflowManager instance gets the Project ID.
+            string projectId = sai_OSCController.Properties.Settings.Default.DialogflowProjectId;
+            if (!string.IsNullOrEmpty(projectId))
+            {
+                oSCReceiver.UpdateDialogflowProjectId(projectId);
+            }
+            else
+            {
+                Console.WriteLine("MainWindow: Dialogflow Project ID is not set in settings. Google Assistant features may be limited until configured.");
+                // Optionally, inform the user via UI if desired, e.g. a status bar message.
+            }
+
+            oSCSender = new();
             meterDataReceiver = new();
             batteryDataReceiver = new();
-
             AvatarMover = new(oSCSender);
 
             _timer1 = new();
